@@ -17,15 +17,15 @@ Minimal server provisioning with shell scripts via SSH.
 
     % ssh <HOSTNAME> '$SHELL' < ubunut/ci-jenkins
 
+## Resources
+
+- [10 advanced, yet digestible SSH techniques][techniques]
+
 ## Alternatives
 
 * [puppet]
 * [chef]
 * [ansible]
-
-## Resources
-
-- [10 advanced, yet digestible SSH techniques][techniques]
 
 ## License
 

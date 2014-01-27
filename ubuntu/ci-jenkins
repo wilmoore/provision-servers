@@ -8,10 +8,6 @@
 # - docker
 # - molly guard
 # - jenkins
-#
-# provisioning a server:
-#
-# % ssh <HOSTNAME> '$SHELL' < provisioner
 ################################################################################
 
 #
