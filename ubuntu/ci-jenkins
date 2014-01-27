@@ -1,0 +1,138 @@
+#!/usr/bin/env bash
+
+################################################################################
+# Jenkins CI Server
+#
+# - ubuntu
+# - vim
+# - docker
+# - molly guard
+# - jenkins
+#
+# provisioning a server:
+#
+# % ssh <HOSTNAME> '$SHELL' < provisioner
+################################################################################
+
+#
+# strict is better
+#
+
+set -e
+set -o errexit
+set -o errtrace
+set -o nounset
+
+################################################################################
+# constants
+################################################################################
+
+declare PREFIX=/opt
+
+################################################################################
+# api
+################################################################################
+
+#
+# operating system flavor
+#
+
+os() {
+  echo `uname` | tr '[:upper:]' '[:lower:]'
+}
+
+
+#
+# architecture
+#
+
+arch() {
+  local out=x86
+  [[ `uname -m` = 'x86_64' ]] && out=x64
+  echo $out
+}
+
+#
+# platform
+#
+
+platform() {
+  echo "`os`-`arch`"
+}
+
+#
+# update system
+#
+
+update() {
+  apt-get update
+  yes | apt-get dist-upgrade
+  apt-get autoremove
+  apt-get autoclean
+}
+
+#
+# install
+#
+
+install() {
+  yes | apt-get install $@
+}
+
+################################################################################
+# main
+################################################################################
+
+#
+# default editor
+#
+
+install vim
+
+cat > /etc/profile.d/editor.sh <<EOF
+EDITOR='vim -p'
+VISUAL='vim -p'
+EOF
+
+#
+# development tools
+#
+
+install gcc
+
+#
+# protection from accidental shutdowns/reboots
+#
+
+install molly-guard
+
+#
+# docker
+#
+
+# install
+
+apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 36A1D7869245C8950F966E92D8576A8BA88D21E9
+sh -c "echo deb http://get.docker.io/ubuntu docker main > /etc/apt/sources.list.d/docker.list"
+update
+install linux-image-extra-`uname -r` lxc-docker
+
+# configure
+
+sed --in-place='' 's/DEFAULT_FORWARD_POLICY="DROP"/DEFAULT_FORWARD_POLICY="ACCEPT"/g' /etc/default/ufw
+ufw reload
+ufw allow 4243/tcp
+
+# image(s)
+
+docker pull ubuntu
+
+#
+# install jenkins
+#
+
+wget -q -O - http://pkg.jenkins-ci.org/debian/jenkins-ci.org.key | apt-key add -
+sh -c 'echo "deb http://pkg.jenkins-ci.org/debian binary/" > /etc/apt/sources.list.d/jenkins-ci.list'
+update
+install jenkins
+
