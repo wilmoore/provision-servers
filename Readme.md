@@ -17,6 +17,8 @@ Minimal server provisioning with shell scripts via SSH.
 
     % ssh <HOSTNAME> '$SHELL' < ubuntu/ci-jenkins
 
+NOTE: To cheaply try this, spin up a DigitalOcean droplet (or equivalent) and replace `<HOSTNAME>` in the command above.
+
 ## Resources
 
 - [10 advanced, yet digestible SSH techniques][techniques]
