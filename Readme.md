@@ -15,7 +15,7 @@ Minimal server provisioning with shell scripts via SSH.
 
 ## Example
 
-    % ssh <HOSTNAME> '$SHELL' < ubunut/ci-jenkins
+    % ssh <HOSTNAME> '$SHELL' < ubuntu/ci-jenkins
 
 ## Resources
 
