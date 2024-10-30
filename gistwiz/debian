@@ -1,0 +1,101 @@
+#!/usr/bin/env bash
+
+################################################################################
+# Provisioning Script
+#
+# - Debian
+# - vim
+# - redis (host installation)
+# - nodejs (v22.11.01 LTS)
+# - molly guard
+# - jq
+################################################################################
+
+# Strict mode
+set -e
+set -o errexit
+set -o errtrace
+set -o nounset
+
+################################################################################
+# constants
+################################################################################
+
+declare PREFIX=/opt
+
+################################################################################
+# api
+################################################################################
+
+# Operating system flavor
+os() {
+  echo "$(uname)" | tr '[:upper:]' '[:lower:]'
+}
+
+# Architecture
+arch() {
+  local out=x86
+  [[ "$(uname -m)" == 'x86_64' ]] && out=x64
+  echo "$out"
+}
+
+# Platform
+platform() {
+  echo "$(os)-$(arch)"
+}
+
+# Update system
+update() {
+  apt-get update
+  yes | apt-get dist-upgrade
+  apt-get autoremove
+  apt-get clean
+}
+
+# Package installation function (renamed to avoid conflict)
+pkg_install() {
+  yes | apt-get install "$@"
+}
+
+################################################################################
+# main
+################################################################################
+
+# Set default editor
+pkg_install vim
+cat > /etc/profile.d/editor.sh <<EOF
+export EDITOR='vim -p'
+export VISUAL='vim -p'
+EOF
+
+# Install development tools
+pkg_install gcc
+
+# Protection from accidental shutdowns/reboots
+pkg_install molly-guard
+
+# Install jq
+pkg_install jq
+
+# Install Redis directly on the host
+install_redis() {
+  pkg_install redis-server
+  systemctl enable redis-server
+  systemctl start redis-server
+}
+
+install_redis
+
+# Install Node.js v22.11.01 LTS
+install_node() {
+  # Download and install Node.js LTS version 22.11.01 from NodeSource or manually
+  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+  pkg_install nodejs
+}
+
+install_node
+
+# Final update
+update
+
+echo "Provisioning completed successfully."
