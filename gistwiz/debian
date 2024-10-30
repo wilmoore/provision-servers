@@ -61,41 +61,32 @@ pkg_install() {
 # main
 ################################################################################
 
-# Set default editor
+# set default editor
 pkg_install vim
 cat > /etc/profile.d/editor.sh <<EOF
 export EDITOR='vim -p'
 export VISUAL='vim -p'
 EOF
 
-# Install development tools
+# install development tools
 pkg_install gcc
 
-# Protection from accidental shutdowns/reboots
+# mitigate accidental shutdowns/reboots
 pkg_install molly-guard
 
-# Install jq
+# install jq
 pkg_install jq
 
-# Install Redis directly on the host
-install_redis() {
-  pkg_install redis-server
-  systemctl enable redis-server
-  systemctl start redis-server
-}
+# install redis
+pkg_install redis-server
+systemctl enable redis-server
+systemctl start redis-server
 
-install_redis
+# install Node.js v22.11.01 LTS
+curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
+pkg_install nodejs
 
-# Install Node.js v22.11.01 LTS
-install_node() {
-  # Download and install Node.js LTS version 22.11.01 from NodeSource or manually
-  curl -fsSL https://deb.nodesource.com/setup_22.x | bash -
-  pkg_install nodejs
-}
-
-install_node
-
-# Final update
+# final update
 update
 
 echo "Provisioning completed successfully."
